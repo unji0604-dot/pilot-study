@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>학습 자료 예비조사</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    background: #f0f2f5;
+    padding: 40px 20px;
+  }
+  .page {
+    display: none;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    width: 720px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+  .page.active { display: block; }
+  h2 { font-size: 22px; margin-bottom: 8px; color: #1B2A4A; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 28px; line-height: 1.6; }
+  p { margin-bottom: 16px; line-height: 1.7; color: #333; font-size: 15px; }
+  .question { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #f0f0f0; }
+  .question:last-of-type { border-bottom: none; }
+  .question-text { font-size: 15px; color: #333; margin-bottom: 12px; line-height: 1.5; }
+  .likert5 { display: flex; gap: 6px; }
+  .likert5 label { flex: 1; text-align: center; padding: 10px 2px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 11px; color: #888; cursor: pointer; transition: all 0.2s; line-height: 1.4; }
+  .likert5 label:hover { border-color: #aaa; }
+  .likert5 input[type="radio"] { display: none; }
+  
+  .likert7 { display: flex; gap: 4px; }
+  .likert7 label { flex: 1; text-align: center; padding: 10px 2px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 11px; color: #888; cursor: pointer; transition: all 0.2s; line-height: 1.4; }
+  .likert7 label:hover { border-color: #aaa; }
+  .likert7 input[type="radio"] { display: none; }
+  
+
+  .likert10 { display: flex; gap: 3px; }
+  .likert10 label { flex: 1; text-align: center; padding: 8px 1px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 11px; color: #888; cursor: pointer; transition: all 0.2s; line-height: 1.3; }
+  .likert10 label:hover { border-color: #aaa; }
+  .likert10 input[type="radio"] { display: none; }
+  .likert5 label:has(input[type="radio"]:checked),
+.likert7 label:has(input[type="radio"]:checked),
+.likert10 label:has(input[type="radio"]:checked) {
+  background: #2E75B6;
+  color: white;
+  border-color: #2E75B6;
+}
+
+.likert5 label:has(input[type="radio"]:checked) span,
+.likert7 label:has(input[type="radio"]:checked) span,
+.likert10 label:has(input[type="radio"]:checked) span {
+  color: white;
+  display: block;
+}
+
+
+  .radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-group label { padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #555; cursor: pointer; transition: all 0.2s; }
+  .radio-group label:hover { border-color: #aaa; }
+  .radio-group input[type="radio"] { display: none; }
+  .radio-group label:has(input[type="radio"]:checked) {
+  background: #2E75B6;
+  color: white;
+  border-color: #2E75B6;
+}
+
+.radio-group label:has(input[type="radio"]:checked) span {
+  color: white;
+  font-weight: 700;
+}
+
+  .text-input { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; margin-top: 4px; }
+  .text-input:focus { outline: none; border-color: #2E75B6; }
+  .btn { padding: 14px 40px; background: #2E75B6; color: white; border: none; border-radius: 10px; font-size: 16px; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; cursor: pointer; margin-top: 20px; transition: all 0.2s; }
+  .btn:hover { background: #1a5a96; }
+  .btn:disabled { background: #ccc; color: #999; cursor: not-allowed; }
+  .page-indicator { font-size: 12px; color: #bbb; text-align: right; margin-bottom: 16px; }
+  .info-box { background: #f0f7ff; border-left: 4px solid #2E75B6; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 20px; line-height: 1.7; }
+  /* 학습 화면 */
+  .study-container { position: relative;text-align: center; }
+  .study-title { font-size: 18px; font-weight: 700; color: #1B2A4A; margin-bottom: 20px; }
+  .study-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left; }
+ .study-table th { background: #2E75B6; color: white; padding: 10px 14px; font-size: 13px; text-align: center; }
+ .study-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #eee; text-align: center; }
+ .study-table td:last-child { text-align: left; }
+  .study-table tr:nth-child(even) { background: #f8f9fb; }
+  .study-table .term { font-weight: 700; color: #1B2A4A; white-space: nowrap; }
+  .timer-display { font-size: 48px; font-weight: 700; color: #2E75B6; margin: 20px 0; }
+  .timer-label { font-size: 14px; color: #999; margin-bottom: 8px; }
+  /* 프로그레스 바 */
+  .dot-me { background: #2E75B6; }
+  .dot-partner { background: #E8593C; }
+  .set4-content { padding-top: 28px; }
+  .term-card { background: #f8f9fb; border: 1px solid #e8eaee; border-radius: 12px; padding: 32px; text-align: center; min-height: 140px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+  .term-word { font-size: 28px; font-weight: 700; color: #1B2A4A; }
+  .term-def { font-size: 16px; color: #555; line-height: 1.6; }
+  .nav-section { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .nav-btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; cursor: pointer; border: 1px solid #ddd; background: #fff; color: #333; transition: all 0.2s; }
+  .nav-btn:hover:not(:disabled) { background: #f0f2f5; border-color: #bbb; }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .nav-dots { display: flex; gap: 6px; }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; transition: all 0.2s; cursor: pointer; }
+  .nav-dot.active { background: #2E75B6; transform: scale(1.3); }
+  .nav-dot.visited { background: #a0c4e8; }
+  .finish-section { text-align: center; margin-top: 24px; }
+  .finish-hint { font-size: 12px; color: #999; margin-top: 8px; }
+  /* 퀴즈 */
+  .quiz-input { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; font-family: 'Noto Sans KR', sans-serif; margin-top: 8px; }
+  .quiz-input:focus { outline: none; border-color: #2E75B6; }
+  .quiz-def { font-size: 15px; color: #555; line-height: 1.6; background: #f8f9fb; padding: 16px; border-radius: 8px; margin-bottom: 8px; }
+  /* 결과 */
+  .result-box { background: #f0f8ff; padding: 16px; border-radius: 8px; margin-top: 16px; font-size: 12px; color: #555; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+
+  :root { color-scheme: light; box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .page { max-width: 100%; }
+  textarea.text-input { min-height: 140px; resize: vertical; line-height: 1.6; }
+  .field-note { font-size: 12px; color: #2E75B6; margin-top: 6px; }
+  .warn-box { background: #fff6f3; border-left: 4px solid #E8593C; padding: 14px 18px; border-radius: 0 8px 8px 0; font-size: 14px; color: #8a3a22; line-height: 1.6; margin: 8px 0 16px; display: none; }
+  .yn { display: flex; gap: 12px; }
+  .yn label { flex: none; width: 120px; text-align: center; padding: 10px 2px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #555; cursor: pointer; }
+  .yn input { display: none; }
+  .yn label:has(input:checked) { background: #2E75B6; color: #fff; border-color: #2E75B6; }
+  .rule-list { padding-left: 20px; margin: 0; }
+  .rule-list li { margin-bottom: 10px; line-height: 1.7; color: #333; font-size: 15px; }
+  .btn:focus-visible, .nav-btn:focus-visible, label:focus-within { outline: 2px solid #1B2A4A; outline-offset: 2px; }
+  @media (max-width: 760px) { .page { padding: 28px 20px; } }
+</style>
+</head>
+<body>
+
+<!-- ==================== 커버스토리 (예비조사) ==================== -->
+<div class="page active" id="p_cover">
+  <h2>학습 자료 예비조사 안내</h2>
+  <div class="info-box">
+    <p>본 조사는 추후 진행될 연구에 사용할 <strong>학습 자료를 사전에 점검하기 위한 예비조사</strong>입니다.</p>
+    <p>앞으로 화면에 용어-정의 쌍으로 이루어진 학습 자료가 제시됩니다.</p>
+    <p><em>예) 교육 - 지식과 기술 따위를 가르치며 인격을 길러 줌</em></p>
+     <p>화면에 나타나는 여러 용어들과 의미를 눈으로 집중하며 학습해 주시면 됩니다.</p>
+     <p>학습 내용에 대한 평가는 없으며, 학습하는 과정에서 어떤 정서를 느꼈는지만 생각하며 학습해 주세요.</p>
+    <br>
+    <p>전체 소요 시간은 약 <strong>25분</strong>입니다.</p>
+    <p>응답 내용은 연구 목적으로만 사용되며, 휴대폰 번호는 기프트콘 지급 후 폐기됩니다.</p>
+  </div>
+  <p>위 내용을 확인하셨으면 아래 버튼을 눌러주세요.</p>
+  <button class="btn" onclick="showPage('p_env')">다음</button>
+</div>
+
+<!-- ==================== 참여 환경 안내 + 확인 ==================== -->
+<div class="page" id="p_env">
+  <h2>참여 환경 안내</h2>
+  <div class="info-box">
+    <ul class="rule-list">
+      <li>본 조사는 반드시 <strong>노트북 또는 데스크탑</strong>으로 진행해 주세요. <strong>휴대폰이나 태블릿으로는 참여할 수 없습니다.</strong></li>
+      <li><strong>주변에 아무도 없고 소음이 차단된 독립된 공간</strong>에서 혼자 진행해 주세요.</li>
+      <li>진행 중에는 휴대폰 사용, 다른 창·탭 열기, 다른 활동을 하지 말아 주세요.</li>
+      <li>진행 중 <strong>뒤로가기·새로고침 버튼을 누르지 마세요.</strong> 처음부터 다시 진행해야 할 수 있습니다.</li>
+      <li>시작 후에는 중간에 멈추지 않고 끝까지 한 번에 진행해 주세요.</li>
+    </ul>
+  </div>
+
+  <div class="question">
+    <div class="question-text">1. 지금 노트북 또는 데스크탑으로 진행하고 있나요?</div>
+    <div class="yn">
+      <label><input type="radio" name="env_device" value="yes"><span>예</span></label>
+      <label><input type="radio" name="env_device" value="no"><span>아니오</span></label>
+    </div>
+    <div class="warn-box" id="warn_env_device">본 조사는 <strong>노트북 또는 데스크탑에서만</strong> 진행할 수 있습니다. 휴대폰이나 태블릿으로는 진행하시면 안 됩니다. 노트북 또는 데스크탑으로 다시 접속해 주세요.</div>
+  </div>
+  <div class="question">
+    <div class="question-text">2. 지금 주변에 아무도 없는 독립된 공간에 혼자 있나요?</div>
+    <div class="yn">
+      <label><input type="radio" name="env_alone" value="yes"><span>예</span></label>
+      <label><input type="radio" name="env_alone" value="no"><span>아니오</span></label>
+    </div>
+    <div class="warn-box" id="warn_env_alone"><strong>혼자가 아닌 곳에서는 진행하시면 안 됩니다.</strong> 주변에 아무도 없는 독립된 공간으로 옮긴 뒤 다시 응답해 주세요.</div>
+  </div>
+  <div class="question">
+    <div class="question-text">3. 실험 진행 중에는 다른 활동은 절대 하시면 안되며, 화면에만 집중해주세요. 이를 이해하셨습니까?</div>
+    <div class="yn">
+      <label><input type="radio" name="env_quiet" value="yes"><span>예</span></label>
+      <label><input type="radio" name="env_quiet" value="no"><span>아니오</span></label>
+    </div>
+    <div class="warn-box" id="warn_env_quiet"><strong>실험에 꼭 집중해주셔야 유의미한 응답을 얻을 수 있습니다.</strong> 집중할 수 있는 시간에 다시 참여해 주세요.</div>
+  </div>
+
+  <p>준비가 되셨으면 아래 버튼을 눌러 학습을 시작해 주세요.</p>
+  <button class="btn" onclick="saveEnv()">학습 시작</button>
+</div>
+
+<!-- ==================== 세트 1~3 학습 (공용 템플릿) ==================== -->
+<div class="page" id="p_study">
+  <div class="study-container">
+    <div style="display:flex;justify-content:center;align-items:center;position:relative;margin-bottom:20px;">
+      <div class="study-title" id="studyTitle" style="margin-bottom:0;"></div>
+      <div id="timerArea" style="position:absolute;right:0;text-align:center;font-size:13px;color:#999;">
+        <div>남은 시간</div>
+        <div id="timerDisplay" style="font-size:24px;font-weight:700;color:#2E75B6;">0:00</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;"><table class="study-table" id="studyTable"></table></div>
+    <p style="font-size:13px;color:#999;">조용히 눈으로 확인해 주세요.</p>
+  </div>
+</div>
+
+<!-- ==================== 세트 간 전환 ==================== -->
+<div class="page" id="p_between">
+  <div style="text-align:center;padding:60px 0;">
+    <h2>수고하셨습니다</h2>
+    <p id="betweenMsg"></p>
+    <button class="btn" id="betweenBtn"></button>
+  </div>
+</div>
+
+<!-- ==================== 정서 경험 측정 (원본 그대로) ==================== -->
+<div class="page" id="p_boredom">
+  <h2>학습 경험</h2>
+  <div class="subtitle" style="color:#333;font-size:15px;">지금까지 학습을 하며 다음의 기분을 얼마나 느꼈는지 표시해 주세요.</div>
+ 
+  <div class="question">
+    <div class="question-text">1. 지루함</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_boredom" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_boredom" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_boredom" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_boredom" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_boredom" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+
+  <div class="question">
+    <div class="question-text">2. 따분함</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_dull" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_dull" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_dull" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_dull" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_dull" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">3. 안절부절못함</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_restless" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_restless" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_restless" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_restless" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_restless" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">4. 피곤함</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_tired" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_tired" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_tired" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_tired" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_tired" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">5. 짜증</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_irritated" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_irritated" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_irritated" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_irritated" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_irritated" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">6. 죄책감</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_guilt" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_guilt" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_guilt" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_guilt" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_guilt" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">7. 즐거움</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_enjoy" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_enjoy" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_enjoy" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_enjoy" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_enjoy" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">8. 희망</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_hope" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_hope" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_hope" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_hope" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_hope" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">9. 자부심</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_pride" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_pride" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_pride" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_pride" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_pride" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">10. 화</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_anger" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_anger" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_anger" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_anger" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_anger" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">11. 불안</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_anxiety" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_anxiety" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_anxiety" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_anxiety" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_anxiety" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">12. 수치심</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_shame" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_shame" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_shame" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_shame" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_shame" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-text">13. 절망감</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_hopeless" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_hopeless" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_hopeless" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_hopeless" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_hopeless" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+
+    <div class="question">
+    <div class="question-text">14. 안도감</div>
+    <div class="likert5">
+      <label><input type="radio" name="emo_relief" value="1"><span>전혀<br>느끼지 않았다</span></label>
+      <label><input type="radio" name="emo_relief" value="2"><span>조금 밖에<br>느끼지 못했다</span></label>
+      <label><input type="radio" name="emo_relief" value="3"><span>보통이다</span></label>
+      <label><input type="radio" name="emo_relief" value="4"><span>많이<br>느꼈다</span></label>
+      <label><input type="radio" name="emo_relief" value="5"><span>매우 많이<br>느꼈다</span></label>
+    </div>
+  </div>
+
+
+  <button class="btn" onclick="saveBoredom()">다음</button>
+</div>
+
+
+<!-- ==================== 지루함 유발 목적 안내 + 서술형 ==================== -->
+<div class="page" id="p_debrief">
+  <h2>자료에 대한 안내</h2>
+  <div class="info-box">
+    <p>방금 보신 학습 자료는 사실 <strong>추후 연구에서 참여자에게 지루함을 유발하기 위한 목적으로 구성된 자료</strong>입니다.</p>
+    <p>이번 예비조사는 이 자료가 실제로 지루함을 잘 유발하는지 확인하기 위해 진행되었습니다. 솔직하게 응답해 주시면 자료를 다듬는 데 큰 도움이 됩니다.</p>
+  </div>
+  <div class="question">
+    <div class="question-text">1. 자료를 보는 동안 실제로 지루하다고 느끼셨나요? 그렇게 느끼셨다면(혹은 느끼지 않으셨다면) 그 이유를 자유롭게 서술해 주세요.</div>
+    <textarea class="text-input" id="inp_bored_open" placeholder="예) 어떤 점에서 지루했는지, 언제부터 지루해졌는지, 지루하지 않았다면 왜 그랬는지 등"></textarea>
+  </div>
+  <div class="question">
+    <div class="question-text">2. 지루함 외에 느낀 다른 감정이나, 자료(용어 난이도, 분량, 제시 시간 등)에 대한 의견이 있다면 적어 주세요. (선택)</div>
+    <textarea class="text-input" id="inp_bored_other" placeholder="자유롭게 적어 주세요"></textarea>
+  </div>
+  <button class="btn" onclick="saveDebrief()">다음</button>
+</div>
+
+<!-- ==================== 인적 정보 ==================== -->
+<div class="page" id="p_demo">
+  <h2>기본 정보</h2>
+  <div class="subtitle">마지막으로 아래 정보를 입력해 주세요.</div>
+
+  <div class="question">
+    <div class="question-text">1. 소속 대학</div>
+    <input type="text" class="text-input" id="inp_univ" placeholder="예: 한국대학교">
+  </div>
+  <div class="question">
+    <div class="question-text">2. 전공</div>
+    <input type="text" class="text-input" id="inp_major" placeholder="예: 심리학과">
+  </div>
+  <div class="question">
+    <div class="question-text">3. 출생년도</div>
+    <input type="text" class="text-input" id="inp_age" placeholder="예: 2003" inputmode="numeric" maxlength="4" style="max-width:160px;">
+  </div>
+  <div class="question">
+    <div class="question-text">4. 성별</div>
+    <div class="yn">
+      <label><input type="radio" name="gender" value="male"><span>남성</span></label>
+      <label><input type="radio" name="gender" value="female"><span>여성</span></label>
+    </div>
+  </div>
+  <div class="question">
+    <div class="question-text">5. 학년</div>
+    <div class="likert5">
+      <label><input type="radio" name="grade" value="1"><span>1학년</span></label>
+      <label><input type="radio" name="grade" value="2"><span>2학년</span></label>
+      <label><input type="radio" name="grade" value="3"><span>3학년</span></label>
+      <label><input type="radio" name="grade" value="4"><span>4학년</span></label>
+      <label><input type="radio" name="grade" value="5+"><span>5학년<br>이상</span></label>
+    </div>
+  </div>
+  <div class="question">
+    <div class="question-text">6. 휴대폰 번호 (기프트콘 지급용)</div>
+    <input type="tel" class="text-input" id="inp_phone" placeholder="예: 010-1234-5678" maxlength="13" inputmode="numeric" style="max-width:260px;">
+    <div class="field-note">기프트콘은 11월 내에 입력하신 번호로 발송될 예정입니다.</div>
+  </div>
+  <button class="btn" id="submitBtn" onclick="saveDemo()">제출</button>
+</div>
+
+<!-- ==================== 완료 ==================== -->
+<div class="page" id="p_end">
+  <div style="text-align:center;padding:40px 0;">
+    <h2>예비조사 참여가 완료되었습니다</h2>
+    <p>소중한 시간 내어 참여해 주셔서 감사합니다.</p>
+    <p>기프트콘은 11월 내에 입력하신 번호로 발송될 예정입니다.</p>
+    <p>이제 창을 닫으셔도 됩니다.</p>
+  </div>
+</div>
+
+<script>
+// ========== 설정 ==========
+var SET_SECONDS = 5;  // 세트당 제시 시간(초) — 테스트용 5초 / 실제 배포 시 420(7분)으로 변경
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbzu02jsUwoFqWqylrOy6D0GY3kTsyQeGrZ85b7hfUrwgYmsNayVuE13i719eNE67ZVL/exec'; // 파일럿 전용 시트 URL로 교체 권장
+
+// ========== 데이터 ==========
+var data = {};
+data.phase = 'pilot';
+data.pid = 'P' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+data.start_time = new Date().toLocaleString('ko-KR');
+data.screen_w = window.screen.width;
+data.screen_h = window.screen.height;
+data.window_w = window.innerWidth;
+data.touch_device = (('ontouchstart' in window) || navigator.maxTouchPoints > 0) ? 1 : 0;
+data.user_agent = navigator.userAgent;
+data.set_seconds = SET_SECONDS;
+
+// ========== 용어-정의 쌍 (세트 1~3) ==========
+var sets = {
+  1: { title: '세트 1', pairs: [
+    ['끝동부리','베어 낸 통나무의 위쪽 끄트머리 부분'],
+    ['감람석','마그네슘, 철 따위를 함유한 규산염 광물. 사방 정계에 속하며, 감람녹색·흰색·회색 따위를 띤다. 빛깔이 곱고 맑은 것은 보석으로 쓴다'],
+    ['트래버스','지질학적 지역의 한쪽에서 반대쪽으로 조사 또는 시료(試料)를 채취하여 가는 선(線)'],
+    ['춘재',' 봄에서 여름에 걸쳐 형성되는 목질의 부분. 나이테의 안쪽을 차지하며 추재에 비하여 세포가 크고 세포벽도 얇다'],
+    ['단사 정계','광물 결정 모양의 하나. 결정의 세 축 가운데 둘은 경사지게 만나고, 다른 하나는 그것들과 직각으로 만나되, 세 축의 길이가 각각 다르다. 휘석, 정장석, 석고 따위에서 볼 수 있다'],
+    ['어닐링','금속이나 유리를 일정한 온도로 가열한 다음에 천천히 식혀 내부 조직을 고르게 하고 응력을 제거하는 열처리 조작'],
+    ['액성한계','퇴적물에서 반고체와 반유동체의 중간 상태에서 수분을 머금는 경계'],
+    ['종단구배','도로, 철도, 둑 따위의 구조물이 세로 방향으로 기울어진 정도'],
+    ['취성재료','힘을 받을 때 큰 소성 변형이 없이 부스러지면서 파괴되는 재료'],
+    ['윤벌기','벌채에서, 한 번 벌채한 구역을 다시 벌채하게 될 때까지 걸리는 기간']
+  ]},
+  2: { title: '세트 2', pairs: [
+    ['변재','통나무의 겉 부분. 빛은 희고 몸은 무르며 질이 거칠어, 그릇이나 건축재로는 적당하지 않다'],
+    ['가소제','합성수지나 합성 고무 따위의 고체에 첨가하여 가공성을 향상시키거나 유연성을 높이기 위하여 쓰는 물질'],
+    ['수준측량','지구상의 각 지점 간의 높낮이를 재는 일. 대개 수준의를 써서 상대적 높이를 재거나, 평균 해면으로 높이를 잰다'],
+    ['태반','미세한 광물이나 진흙에 섞인 광석을 물과 함께 경사진 곳을 흐르게 하여 선별하는 기계'],
+    ['결정립','금속 재료 따위에서, 현미경적인 크기의 불규칙한 형상의 집합으로 되어 있는 결정 입자'],
+    ['양생','콘크리트가 완전히 굳을 때까지 적당한 수분을 유지하고 충격을 받거나 얼지 아니하도록 보호하는 일.'],
+    ['심재','나무줄기의 중심부에 있는 단단한 부분. 또는 그것으로 된 재목. 보통 붉은색, 누런색, 흑갈색이다'],
+    ['반상조직','큰 결정이 작은 알갱이 모양 결정의 집합 속 또는 유리 속에 흩어져 있는 암석 조직'],
+    ['시거측량','경위의 따위에서 망원경 안의 두 평행선 사이에 있는 표척의 길이로 거리를 구하는 방법'],
+    ['소성가공','물체의 가소성을 이용하여 금속이나 플라스틱 재료 따위를 변형시켜 필요한 모양을 만드는 가공']
+  ]},
+  3: { title: '세트 3', pairs: [
+    ['다형변정','광물질이 같은 화학 조성을 가지면서, 큰 압력이나 마그마의 접촉을 받아 다른 모양의 결정형을 이루는 것'],
+    ['삼각측량','삼각형의 한 변의 길이와 두 개의 끼인각을 알면 그 삼각형의 나머지 두 변의 길이를 알 수 있다는 원리를 이용하여 지형을 측량하는 방법. 정밀하게 길이를 잰 기선(基線)과 그 밖에 몇 개의 기준점을 설정하고 그것들을 이어 많은 삼각형의 그물을 만든 후, 삼각법에 의하여 계산한다'],
+    ['공정반응','가열에 의해 두 가지 이상의 고체상에서 단일 액체상이 생성되는 등온 가역 반응'],
+    ['개벌','일정한 부분의 산림을 일시에 또는 단기간에 모두 베어 냄'],
+    ['침탄','저탄소강 표면부를 단단하게 하기 위하여 탄소 성분을 스며들게 하는 처리. 목탄, 일산화 탄소, 사이안화 칼륨 따위에 강철을 넣고 가열한다'],
+    ['편심하중','구조의 단면 중심 이외의 점에 걸리는 하중'],
+    ['날화','점도가 큰 물질이나 반고체(半固體) 재료를 이기고 반죽하는 일'],
+    ['벽개','광물이 일정한 방향으로만 틈이 생기고 평탄한 면을 보이며 쪼개지는 일'],
+    ['간벌','나무들이 적당한 간격을 유지하여 잘 자라도록 불필요한 나무를 솎아 베어 냄'],
+    ['갱판','광산에서, 물을 빼기 위하여 파 놓은 물길']
+  ]}
+};
+
+// ========== 유틸리티 ==========
+function showPage(id) {
+  var pp = document.querySelectorAll('.page');
+  for (var i=0;i<pp.length;i++) pp[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function getR(name) {
+  var el = document.querySelector('input[name="'+name+'"]:checked');
+  return el ? el.value : null;
+}
+function checkRs(names) {
+  for (var i=0;i<names.length;i++) { if (!getR(names[i])) return false; }
+  return true;
+}
+function saveRs(names) {
+  for (var i=0;i<names.length;i++) data[names[i]] = getR(names[i]);
+}
+
+// 뒤로가기/이탈 방지
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', function(){ history.pushState(null, '', location.href); alert('진행 중에는 뒤로가기를 사용할 수 없습니다.'); });
+var finished = false;
+window.addEventListener('beforeunload', function(e){ if (!finished) { e.preventDefault(); e.returnValue = ''; } });
+
+// ========== 참여 환경 확인 ==========
+var ENV_ITEMS = ['env_device','env_alone','env_quiet'];
+for (var k=0;k<ENV_ITEMS.length;k++) data[ENV_ITEMS[k]+'_ever_no'] = 0;  // 한 번이라도 '아니오'를 눌렀는지 기록
+document.addEventListener('change', function(e){
+  var n = e.target.name;
+  if (ENV_ITEMS.indexOf(n) >= 0) {
+    var isNo = e.target.value === 'no';
+    if (isNo) data[n+'_ever_no'] = 1;
+    document.getElementById('warn_'+n).style.display = isNo ? 'block' : 'none';
+  }
+});
+function saveEnv() {
+  if (!checkRs(ENV_ITEMS)) { alert('모든 문항에 응답해 주세요.'); return; }
+  for (var i=0;i<ENV_ITEMS.length;i++) {
+    if (getR(ENV_ITEMS[i]) === 'no') { alert('참여 조건을 모두 갖춘 뒤에만 시작할 수 있습니다. 조건을 갖추고 모든 문항에 \'예\'로 응답해 주세요.'); return; }
+  }
+  saveRs(ENV_ITEMS);
+  startSet(1);
+}
+
+// ========== 세트 1~3 학습 ==========
+var currentSet = 0;
+var timerInterval = null;
+var hiddenCount = 0, hiddenStart = 0, hiddenMs = 0;
+
+document.addEventListener('visibilitychange', function(){
+  if (!currentSet) return;
+  if (document.hidden) { hiddenCount++; hiddenStart = Date.now(); }
+  else if (hiddenStart) { hiddenMs += Date.now() - hiddenStart; hiddenStart = 0; }
+});
+
+function fmt(s) { return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+
+function startSet(setNum) {
+  currentSet = setNum;
+  hiddenCount = 0; hiddenMs = 0; hiddenStart = 0;
+  var s = sets[setNum];
+  document.getElementById('studyTitle').textContent = s.title;
+  var tbl = '<tr><th style="width:40px">#</th><th style="width:100px">용어</th><th>정의</th></tr>';
+  for (var i=0;i<s.pairs.length;i++) {
+    tbl += '<tr><td>'+(i+1)+'</td><td class="term">'+s.pairs[i][0]+'</td><td>'+s.pairs[i][1]+'</td></tr>';
+  }
+  document.getElementById('studyTable').innerHTML = tbl;
+  var disp = document.getElementById('timerDisplay');
+  disp.style.color = '#2E75B6';
+  showPage('p_study');
+
+  var endAt = Date.now() + SET_SECONDS*1000;
+  disp.textContent = fmt(SET_SECONDS);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(function() {
+    var remaining = Math.max(0, Math.ceil((endAt - Date.now())/1000));
+    disp.textContent = fmt(remaining);
+    if (remaining <= 5) disp.style.color = '#E8593C';
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      if (hiddenStart) { hiddenMs += Date.now() - hiddenStart; hiddenStart = 0; }
+      data['set'+setNum+'_hidden_count'] = hiddenCount;
+      data['set'+setNum+'_hidden_sec'] = Math.round(hiddenMs/1000);
+      showBetween(setNum);
+    }
+  }, 250);
+}
+
+function showBetween(setNum) {
+  currentSet = 0;
+  var btn = document.getElementById('betweenBtn');
+  if (setNum < 3) {
+    document.getElementById('betweenMsg').textContent = '세트 ' + setNum + '이(가) 끝났습니다. 준비가 되면 다음 세트를 시작해 주세요.';
+    btn.textContent = '다음 세트 시작';
+    btn.onclick = function() { startSet(setNum+1); };
+  } else {
+    document.getElementById('betweenMsg').textContent = '모든 세트가 끝났습니다.';
+    btn.textContent = '다음';
+    btn.onclick = function() { showPage('p_boredom'); };
+  }
+  showPage('p_between');
+}
+
+// ========== 정서 경험 ==========
+function saveBoredom() {
+  var emoItems = ['emo_enjoy','emo_hope','emo_pride','emo_anger','emo_anxiety','emo_shame','emo_hopeless','emo_boredom','emo_dull','emo_restless','emo_tired','emo_irritated','emo_guilt','emo_relief'];
+  if (!checkRs(emoItems)) { alert('모든 문항에 응답해 주세요.'); return; }
+  saveRs(emoItems);
+  showPage('p_debrief');
+}
+
+// ========== 지루함 서술형 ==========
+function saveDebrief() {
+  var v = document.getElementById('inp_bored_open').value.trim();
+  if (v.length < 5) { alert('1번 문항에 응답해 주세요.'); return; }
+  data.bored_open = v;
+  data.bored_other = document.getElementById('inp_bored_other').value.trim();
+  showPage('p_demo');
+}
+
+// ========== 인적 정보 ==========
+document.getElementById('inp_phone').addEventListener('input', function(){
+  var d = this.value.replace(/\D/g,'').slice(0,11);
+  if (d.length > 7) this.value = d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7);
+  else if (d.length > 3) this.value = d.slice(0,3)+'-'+d.slice(3);
+  else this.value = d;
+});
+document.getElementById('inp_age').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); });
+
+function saveDemo() {
+  var univ = document.getElementById('inp_univ').value.trim();
+  var major = document.getElementById('inp_major').value.trim();
+  var age = document.getElementById('inp_age').value.trim();
+  var phone = document.getElementById('inp_phone').value.trim();
+  if (!univ || !major) { alert('소속 대학과 전공을 입력해 주세요.'); return; }
+  if (!/^(19|20)[0-9]{2}$/.test(age) || +age < 1955 || +age > 2010) { alert('출생년도를 4자리 숫자로 정확히 입력해 주세요. (예: 2003)'); return; }
+  if (!getR('gender') || !getR('grade')) { alert('성별과 학년을 선택해 주세요.'); return; }
+  if (!/^01[0-9]-[0-9]{3,4}-[0-9]{4}$/.test(phone)) { alert('휴대폰 번호를 정확히 입력해 주세요. (예: 010-1234-5678)'); return; }
+  data.univ = univ; data.major = major; data.birth_year = age;
+  data.gender = getR('gender'); data.grade = getR('grade');
+  data.phone = phone;
+  data.end_time = new Date().toLocaleString('ko-KR');
+  document.getElementById('submitBtn').disabled = true;
+  sendToGoogleSheets();
+  finished = true;
+  showPage('p_end');
+}
+
+// ========== Google Sheets 전송 ==========
+function sendToGoogleSheets() {
+  data.timestamp = new Date().toLocaleString('ko-KR');
+  try {
+    fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }).catch(function(){});
+  } catch (e) {}
+}
+</script>
+</body>
+</html>
